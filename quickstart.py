@@ -8,14 +8,18 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+import pprint
+import base64
+import email
+
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
+senders = []
+
 
 def main():
-    """Shows basic usage of the Gmail API.
-    Lists the user's Gmail labels.
-    """
+    """Lists user's Gmail labels."""
     creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -40,12 +44,57 @@ def main():
         # all_labels = service.users().labels().list(userId='me').execute()
         # labels = results.get('labels', [])
         
-        unread_msgs = service.users().messages().list(userId='me',labelIds=['INBOX', 'UNREAD'], 0).execute()
+        # what is users()
 
-        all_msgs = service.users().messages().list(userId='me').execute()
-        # print(unread_msgs['messages']) what is this even getting
-        arr = [msg for msg in unread_msgs: if msg['id'] in ]
-        print([0]["raw"])
+        unread_msgs = service.users().messages().list(userId='me',labelIds=['INBOX', 'UNREAD']).execute()
+        pp = pprint.PrettyPrinter(indent=4)
+        threadids_unread_msgs = [msg['threadId'] for msg in unread_msgs['messages']]
+        # pp.pprint(threadids_unread_msgs)
+        # message_bodies = [service.users().messages().get(userId='me', id=id).execute() for id in threadids_unread_msgs]
+
+        for id in threadids_unread_msgs:
+            message_list_full = service.users().messages().get(userId='me', id=id, format='full').execute()
+            # print(id)
+        
+            payload = message_list_full['payload']
+
+            message_headers = payload['headers']
+
+            for header in message_headers:
+                if header['name'] == 'From':
+                    senders.append(header['value'])
+
+        print(senders)
+
+
+        message_list_raw = service.users().messages().get(userId='me', id=threadids_unread_msgs[1], format='raw').execute()
+        msg_raw = base64.urlsafe_b64decode(message_list_raw['raw'].encode('ASCII'))
+        msg_str = email.message_from_bytes(msg_raw)
+
+        """
+        # content_types = msg_str.get_content_maintype()
+
+        # print(msg_str)
+        """
+        
+        # payload = trial_msg['payload']
+        # headers = payload.get("headers")
+        # parts = payload.get("parts")
+        # folder_name = "email"
+        # print(payload)
+
+        # messages = unread_msgs.get('messages', []) #idk what tis does
+
+        # message_bodies = [service.users().messages().get(userId='me', id=msg['id']).execute() for msg in messages]
+        # print("hi",message_bodies[0])
+        # for msg in message_bodies:
+        #     print(msg)
+
+
+        # all_msgs = service.users().messages().list(userId='me').execute()
+        # # print(unread_msgs['messages']) what is this even getting
+        # arr = [msg for msg in unread_msgs: if msg['id'] in ]
+        # print(arr[0]["raw"])
 
 
 
