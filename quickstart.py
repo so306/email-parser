@@ -15,7 +15,7 @@ import email
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
-senders = []
+senders = {}
 
 
 def main():
@@ -48,7 +48,7 @@ def main():
 
         unread_msgs = service.users().messages().list(userId='me',labelIds=['INBOX', 'UNREAD']).execute()
         pp = pprint.PrettyPrinter(indent=4)
-        threadids_unread_msgs = [msg['threadId'] for msg in unread_msgs['messages']]
+        threadids_unread_msgs = [msg['id'] for msg in unread_msgs['messages']] # id vs thread_id
         # pp.pprint(threadids_unread_msgs)
         # message_bodies = [service.users().messages().get(userId='me', id=id).execute() for id in threadids_unread_msgs]
 
@@ -62,9 +62,16 @@ def main():
 
             for header in message_headers:
                 if header['name'] == 'From':
-                    senders.append(header['value'])
+                    if header['value'] not in senders:
+                        senders[header['value']] = 1
+                    else:
+                        senders[header['value']] += 1
 
-        print(senders)
+        sortedUnreadSenders = sorted(senders.items(), key=lambda x:x[1], reverse=True)
+        for key, val in sortedUnreadSenders:
+            print(key, val)
+        # list of unread emails, sorted by senders with highest num of unread emails!
+        # out of _(#100?)__ most recent unread emails, ___
 
 
         message_list_raw = service.users().messages().get(userId='me', id=threadids_unread_msgs[1], format='raw').execute()
