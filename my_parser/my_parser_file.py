@@ -125,8 +125,9 @@ def test():
             summaries.append(val[2])
         
         context = {}
+        context["num_ids"] = len(ids)
         context["top_unread_senders"] = sorted_unread_senders
-        context["ids"] = ids
+        context["email_ids"] = ids
         context["subjects"] = subjects
         context["dates"] = dates
         context["summaries"] = summaries

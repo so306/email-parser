@@ -21,19 +21,19 @@
     <p>Your top senders with highest number of unread messages: </p>
     {% for i in range(5) %}
         <div>
-            {{ top_unread_senders }}
+            {{ top_unread_senders[i] }}
         </div>
     {% endfor %}
 
 
     <p>Your 100 most recent Unread emails, sorted by Date: </p>
-    {% for i in range(5) %}
-    <!-- <button id="" onclick= onclick=likeButton({{id}}) >Authorize</button> -->
-    <div>
-        {{ subjects }}
-        {{ dates }}
-        {{ summaries }}
-    </div>
+    {% for i in range(num_ids) %}
+    <button class="button button4" id="" location.href="https://mail.google.com/mail/#inbox/{{email_ids[i]}}" >
+        <h1> {{ subjects[i] }} </h1>
+        </h2> {{ dates[i] }} </h2>
+        <p> {{ summaries[i] }} </p>    
+        </div>
+    </button>
     {% endfor %}
     
     <script type="text/javascript">
@@ -138,6 +138,11 @@
                 document.getElementById('signout_button').style.visibility = 'hidden';
             }
         }
+
+        // function handleEmailClick(email_id){
+        //     location.href = "https://mail.google.com/mail/#inbox/" + email_id;
+        //     print(location.href)
+        // }
 
         /**
          * Print all Labels in the authorized user's inbox. If no labels
