@@ -67,8 +67,9 @@ def test():
             unread_emails_headers = payload['headers']
 
             default_date = datetime.datetime(year=datetime.MAXYEAR,month=1, day=31)
+            default_date_str = "{:%b %d, %Y}".format(default_date)
 
-            emailid_to_subject_date[email_id] = ["", default_date, ""]
+            emailid_to_subject_date[email_id] = ["", default_date_str, ""]
 
             for header in unread_emails_headers:
                 if(header['name'] == 'Subject'):
@@ -84,7 +85,7 @@ def test():
 
         for email_id in ids_unread_msgs:
             message_list_raw = service.users().messages().get(userId='me', id=email_id, format='raw').execute()
-            msg_raw = base64.urlsafe_b64decode(message_list_raw['raw'].encode('ASCII'))
+            msg_raw = base64.urlsafe_b64decode(message_list_raw['raw'].encode('utf-8'))
             msg_str = email.message_from_bytes(msg_raw)
 
             str_msg = msg_str.as_string()
@@ -93,7 +94,8 @@ def test():
             email_content = str_msg[idx_plain:idx_html]
             date = find_email_dates(email_id, email_content)
             if date is not None:
-                emailid_to_subject_date[email_id][1] = date
+                date_str = "{:%b %d, %Y}".format(date)
+                emailid_to_subject_date[email_id][1] = date_str
             emailid_to_subject_date[email_id][2] = process_email(email_content)
 
         sorted_unread_emails = sorted(emailid_to_subject_date.items(), key=lambda x:x[1][1])
@@ -149,23 +151,35 @@ def find_email_dates(email_id, email_content): # return datetime
     # use regex for Jan, Jan. , 1, 01 etc
     months = ["January", "Feb", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     months_struct = {"January": 1, "Feb": 2, "March": 3, "April": 4, "May": 5, "June": 6, "July": 7, "August": 8, "September": 9, "October": 10, "November": 11, "December": 12}
+    
+    dates = []
+    
     for month in months:
         try:
             idx = email_text_list.index(month)
             month_val = email_text_list[idx]
             day = email_text_list[idx+1]
+            day = day[:(len(day)-1)] # get rid of comma. careful for single digit
             year = email_text_list[idx+2]
 
             if not day.isnumeric() or int(day) > 31:
+                print(day)
                 day = 28
             if not year.isnumeric():
                 year = 2023
             
             d = datetime.datetime(year=int(year),month=months_struct[month_val], day=int(day))
-            return d
-            
+            if(d >= datetime.datetime.today()):
+                dates.append(d)
+        
         except ValueError:
             continue
+        
+        if(len(dates) > 0):
+            return min(dates)
+        return datetime.datetime(year=datetime.MAXYEAR,month=1, day=31)
+            
+
 
 
 def process_email(email_content):
@@ -197,7 +211,8 @@ def process_email(email_content):
         return ""
 
     for word in word_frequencies.keys():
-        word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
+        if word[:8] != "https://":
+            word_frequencies[word] = (word_frequencies[word]/maximum_frequncy)
 
     sentence_scores = {}
     for sent in sentence_list:

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
-<body style="background-color:rgba(128, 125, 125, 0.89);">
+<body style="background-color:rgb(48, 47, 47); font-family:Verdana;" text="white">
     <!-- <p>Hello, Sohavni</p> -->
     <button class="button-85">Hello, Sohavni</button>
 
@@ -18,20 +18,21 @@
 
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
-    <p>Your top senders with highest number of unread messages: </p>
+    <h2>Your top senders with highest number of unread messages: </h2>
     {% for i in range(5) %}
         <div>
             {{ top_unread_senders[i] }}
         </div>
     {% endfor %}
 
-
-    <p>Your 100 most recent Unread emails, sorted by Date: </p>
-    {% for i in range(num_ids) %}
-    <button class="button button4" id="" location.href="https://mail.google.com/mail/#inbox/{{email_ids[i]}}" >
-        <h1> {{ subjects[i] }} </h1>
-        </h2> {{ dates[i] }} </h2>
-        <p> {{ summaries[i] }} </p>    
+    <div></div> 
+    <!-- above div for spacing. change to margin -->
+    <h2>Your latest Unread emails, sorted by Date: </h2>
+    {% for id in email_ids %}
+    <button type="button" class="button button4" id="btn_mine" onclick="window.location.href='https://mail.google.com/mail/#inbox/{{id}}';" >
+        <h1> {{ subjects[loop.index-1] }} </h1>
+        <h2> {{ dates[loop.index-1] }} </h2>
+        <p> {{ summaries[loop.index-1] }} </p>    
         </div>
     </button>
     {% endfor %}
