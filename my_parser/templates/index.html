@@ -5,10 +5,12 @@
     <title>Hello, Sohavni</title>
     <!-- TODO replace with user's actual name -->
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
-<body>
-    <p>Hello, Sohavni</p>
+<body style="background-color:rgba(128, 125, 125, 0.89);">
+    <!-- <p>Hello, Sohavni</p> -->
+    <button class="button-85">Hello, Sohavni</button>
 
     <!--Add buttons to initiate auth sequence and sign out-->
     <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
@@ -16,11 +18,22 @@
 
     <pre id="content" style="white-space: pre-wrap;"></pre>
 
-    {% for sender in sorted_unread_senders %}
+    <p>Your top senders with highest number of unread messages: </p>
+    {% for i in range(5) %}
         <div>
-            {{ sender }}
-
+            {{ top_unread_senders }}
         </div>
+    {% endfor %}
+
+
+    <p>Your 100 most recent Unread emails, sorted by Date: </p>
+    {% for i in range(5) %}
+    <!-- <button id="" onclick= onclick=likeButton({{id}}) >Authorize</button> -->
+    <div>
+        {{ subjects }}
+        {{ dates }}
+        {{ summaries }}
+    </div>
     {% endfor %}
     
     <script type="text/javascript">
@@ -130,27 +143,27 @@
          * Print all Labels in the authorized user's inbox. If no labels
          * are found an appropriate message is printed.
          */
-        async function listLabels() {
-            let response;
-            try {
-                response = await gapi.client.gmail.users.labels.list({
-                    'userId': 'me',
-                });
-            } catch (err) {
-                document.getElementById('content').innerText = err.message;
-                return;
-            }
-            const labels = response.result.labels;
-            if (!labels || labels.length == 0) {
-                document.getElementById('content').innerText = 'No labels found.';
-                return;
-            }
-            // Flatten to string to display
-            const output = labels.reduce(
-                (str, label) => `${str}${label.name}\n`,
-                'Labels:\n');
-            document.getElementById('content').innerText = output;
-        }
+        // async function listLabels() {
+        //     let response;
+        //     try {
+        //         response = await gapi.client.gmail.users.labels.list({
+        //             'userId': 'me',
+        //         });
+        //     } catch (err) {
+        //         document.getElementById('content').innerText = err.message;
+        //         return;
+        //     }
+        //     const labels = response.result.labels;
+        //     if (!labels || labels.length == 0) {
+        //         document.getElementById('content').innerText = 'No labels found.';
+        //         return;
+        //     }
+        //     // Flatten to string to display
+        //     const output = labels.reduce(
+        //         (str, label) => `${str}${label.name}\n`,
+        //         'Labels:\n');
+        //     document.getElementById('content').innerText = output;
+        // }
 
         var canvas = document.getElementById("canvas");
             var ctx = canvas.getContext('2d');
