@@ -1,0 +1,6 @@
+arrow
+bs4
+Flask
+pytest
+pytest-mock
+requests
